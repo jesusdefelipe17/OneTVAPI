@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer'); // Usa puppeteer en lugar de puppeteer-core
+const puppeteer = require('puppeteer-core');
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -6,17 +6,21 @@ const app = express();
 // Habilitar CORS para todas las solicitudes
 app.use(cors());
 
+const chromePath = '/usr/bin/chromium-browser'; // Ruta común en servidores Linux
 
-// Endpoint para obtener datos de una película
+async function launchBrowser() {
+    return await puppeteer.launch({
+        executablePath: chromePath,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+}
+
 app.get('/getPelicula/:nombrePelicula', async (req, res) => {
     try {
         const nombrePelicula = req.params.nombrePelicula;
         const url = `https://peliculas10.pro/pelicula/${nombrePelicula}/`;
         
-        const browser = await puppeteer.launch({
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-            // Puedes agregar otras opciones si es necesario
-        });
+        const browser = await launchBrowser();
         const page = await browser.newPage();
         await page.goto(url, { waitUntil: 'networkidle2' });
 
@@ -32,32 +36,32 @@ app.get('/getPelicula/:nombrePelicula', async (req, res) => {
                 }).filter(url => url !== null)
             );
 
-            // Filtrar enlaces que contienen 'doodstream' o 'streamwish'
-            const doodstreamLinks = allLinks.filter(url => url.includes('doodstream'));
-            const streamwishLinks = allLinks.filter(url => url.includes('streamwish'));
+           // Filtrar enlaces que contienen 'doodstream' o 'streamwish'
+           const doodstreamLinks = allLinks.filter(url => url.includes('doodstream'));
+           const streamwishLinks = allLinks.filter(url => url.includes('streamwish'));
 
-            // Priorizar 'doodstream' si está disponible, sino usar 'streamwish'
-            const filteredLinks = doodstreamLinks.length > 0 ? doodstreamLinks : streamwishLinks;
+           // Priorizar 'doodstream' si está disponible, sino usar 'streamwish'
+           const filteredLinks = doodstreamLinks.length > 0 ? doodstreamLinks : streamwishLinks;
 
             const [sinopsis, posterSrc, rating] = await Promise.all([
                 page.waitForSelector('div[itemprop="description"] p')
                     .then(() => page.$eval('div[itemprop="description"] p', p => p.textContent.trim())),
                 
-                page.waitForSelector('div.poster img[itemprop="image"]')
+                    page.waitForSelector('div.poster img[itemprop="image"]')
                     .then(() => page.$eval('div.poster img[itemprop="image"]', img => img.src.replace(/w185/, 'w500'))), // Cambiar la resolución aquí
                 
                 page.waitForSelector('span.valor b#repimdb strong')
                     .then(() => page.$eval('span.valor b#repimdb strong', strong => strong.textContent.trim()))
             ]);
 
-            await browser.close();
+           await browser.close();
 
-            res.json({
-                links: filteredLinks,
-                descripcion: sinopsis,
-                poster: posterSrc,
-                calificacion: rating
-            });
+           res.json({
+            links: filteredLinks,
+            descripcion: sinopsis,
+            poster: posterSrc,
+            calificacion: rating
+        });
         } else {
             await browser.close();
             res.status(404).json({ error: 'No se encontró el iframe.' });
@@ -69,15 +73,11 @@ app.get('/getPelicula/:nombrePelicula', async (req, res) => {
     }
 });
 
-// Endpoint para obtener últimas películas
 app.get('/ultimasPeliculas', async (req, res) => {
     try {
         const url = 'https://peliculas10.pro';
         
-         const browser = await puppeteer.launch({
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-            // Puedes agregar otras opciones si es necesario
-        });
+        const browser = await launchBrowser();
         const page = await browser.newPage();
         await page.goto(url, { waitUntil: 'networkidle2' });
 
@@ -92,6 +92,7 @@ app.get('/ultimasPeliculas', async (req, res) => {
                 return { id, title, link, imgSrc, releaseDate };
             });
         });
+        
 
         await browser.close();
 
