@@ -6,13 +6,6 @@ const app = express();
 // Habilitar CORS para todas las solicitudes
 app.use(cors());
 
-// Función para inicializar Puppeteer
-async function launchBrowser() {
-    return await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        // Puedes agregar otras opciones si es necesario
-    });
-}
 
 // Endpoint para obtener datos de una película
 app.get('/getPelicula/:nombrePelicula', async (req, res) => {
@@ -20,7 +13,10 @@ app.get('/getPelicula/:nombrePelicula', async (req, res) => {
         const nombrePelicula = req.params.nombrePelicula;
         const url = `https://peliculas10.pro/pelicula/${nombrePelicula}/`;
         
-        const browser = await launchBrowser();
+        const browser = await puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            // Puedes agregar otras opciones si es necesario
+        });
         const page = await browser.newPage();
         await page.goto(url, { waitUntil: 'networkidle2' });
 
@@ -78,7 +74,10 @@ app.get('/ultimasPeliculas', async (req, res) => {
     try {
         const url = 'https://peliculas10.pro';
         
-        const browser = await launchBrowser();
+         const browser = await puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            // Puedes agregar otras opciones si es necesario
+        });
         const page = await browser.newPage();
         await page.goto(url, { waitUntil: 'networkidle2' });
 
