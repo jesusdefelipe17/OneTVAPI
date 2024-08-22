@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: onetvapi
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    plan: free
+    # Opcional: especificar la versión de Node.js si es necesario
+    nodeVersion: 18
