@@ -2,8 +2,7 @@
     "name": "onetvapi",
     "version": "1.0.0",
     "scripts": {
-        "start": "node index.js",
-        "build": "tsc"
+        "start": "node index.js"
     },
     "dependencies": {
         "cors": "^2.8.5",
