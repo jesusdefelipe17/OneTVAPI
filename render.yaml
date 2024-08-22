@@ -5,5 +5,7 @@ services:
     buildCommand: npm install
     startCommand: npm start
     plan: free
-    # Opcional: especificar la versión de Node.js si es necesario
     nodeVersion: 18
+    envVars:
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: 'true'
