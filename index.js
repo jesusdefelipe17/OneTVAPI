@@ -12,6 +12,7 @@ app.get('/getPelicula/:nombrePelicula', async (req, res) => {
         const url = `https://peliculas10.pro/pelicula/${nombrePelicula}/`;
         
         const browser = await puppeteer.launch({
+            executablePath: '/usr/bin/chromium-browser',
             args: ['--no-sandbox', '--disable-setuid-sandbox'],
         });
         const page = await browser.newPage();
@@ -68,6 +69,7 @@ app.get('/ultimasPeliculas', async (req, res) => {
         const url = 'https://peliculas10.pro';
         
         const browser = await puppeteer.launch({
+            executablePath: '/usr/bin/chromium-browser',
             args: ['--no-sandbox', '--disable-setuid-sandbox'],
         });
         const page = await browser.newPage();
