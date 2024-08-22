@@ -2,6 +2,7 @@
     "name": "onetvapi",
     "version": "1.0.0",
     "scripts": {
+        "preinstall": "npx puppeteer install",
         "start": "node index.js"
     },
     "dependencies": {
