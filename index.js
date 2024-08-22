@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer-core');
+const puppeteer = require('puppeteer');
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -6,21 +6,14 @@ const app = express();
 // Habilitar CORS para todas las solicitudes
 app.use(cors());
 
-const chromePath = '/usr/bin/chromium-browser'; // Ruta común en servidores Linux
-
-async function launchBrowser() {
-    return await puppeteer.launch({
-        executablePath: chromePath,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-}
-
 app.get('/getPelicula/:nombrePelicula', async (req, res) => {
     try {
         const nombrePelicula = req.params.nombrePelicula;
         const url = `https://peliculas10.pro/pelicula/${nombrePelicula}/`;
         
-        const browser = await launchBrowser();
+        const browser = await puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
         const page = await browser.newPage();
         await page.goto(url, { waitUntil: 'networkidle2' });
 
@@ -36,19 +29,16 @@ app.get('/getPelicula/:nombrePelicula', async (req, res) => {
                 }).filter(url => url !== null)
             );
 
-           // Filtrar enlaces que contienen 'doodstream' o 'streamwish'
            const doodstreamLinks = allLinks.filter(url => url.includes('doodstream'));
            const streamwishLinks = allLinks.filter(url => url.includes('streamwish'));
-
-           // Priorizar 'doodstream' si está disponible, sino usar 'streamwish'
            const filteredLinks = doodstreamLinks.length > 0 ? doodstreamLinks : streamwishLinks;
 
             const [sinopsis, posterSrc, rating] = await Promise.all([
                 page.waitForSelector('div[itemprop="description"] p')
                     .then(() => page.$eval('div[itemprop="description"] p', p => p.textContent.trim())),
                 
-                    page.waitForSelector('div.poster img[itemprop="image"]')
-                    .then(() => page.$eval('div.poster img[itemprop="image"]', img => img.src.replace(/w185/, 'w500'))), // Cambiar la resolución aquí
+                page.waitForSelector('div.poster img[itemprop="image"]')
+                    .then(() => page.$eval('div.poster img[itemprop="image"]', img => img.src.replace(/w185/, 'w500'))),
                 
                 page.waitForSelector('span.valor b#repimdb strong')
                     .then(() => page.$eval('span.valor b#repimdb strong', strong => strong.textContent.trim()))
@@ -77,7 +67,9 @@ app.get('/ultimasPeliculas', async (req, res) => {
     try {
         const url = 'https://peliculas10.pro';
         
-        const browser = await launchBrowser();
+        const browser = await puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
         const page = await browser.newPage();
         await page.goto(url, { waitUntil: 'networkidle2' });
 
@@ -92,12 +84,11 @@ app.get('/ultimasPeliculas', async (req, res) => {
                 return { id, title, link, imgSrc, releaseDate };
             });
         });
-        
 
         await browser.close();
 
         res.json({
-            peliculas: peliculas.filter(peli => peli.title && peli.link) // Filtra las que tienen título y enlace
+            peliculas: peliculas.filter(peli => peli.title && peli.link)
         });
     } catch (error) {
         console.error(error);

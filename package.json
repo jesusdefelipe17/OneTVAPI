@@ -2,14 +2,13 @@
     "name": "onetvapi",
     "version": "1.0.0",
     "scripts": {
-        "postinstall": "./install-chromium.sh", 
         "start": "node index.js",
         "build": "tsc"
     },
     "dependencies": {
         "cors": "^2.8.5",
         "express": "^4.19.2",
-        "puppeteer-core": "^22.15.0" 
+        "puppeteer": "^22.15.0" 
     },
     "devDependencies": {
         "typescript": "^4.5.2"

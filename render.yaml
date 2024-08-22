@@ -6,6 +6,3 @@ services:
     startCommand: npm start
     plan: free
     nodeVersion: 18
-    envVars:
-      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
-        value: 'true'
