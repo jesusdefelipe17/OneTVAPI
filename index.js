@@ -1,5 +1,6 @@
 const express = require("express");
 const { ultimasPeliculas } = require("./ultimasPeliculas");
+const { getPelicula } = require("./getPelicula");
 const app = express();
 
 const PORT = process.env.PORT || 4000;
@@ -8,8 +9,12 @@ app.get("/ultimasPeliculas", (req, res) => {
     ultimasPeliculas(res);
 });
 
+app.get("/getPelicula/:nombrePelicula", (req, res) => {
+    getPelicula(req, res);
+});
+
 app.get("/", (req, res) => {
-  res.send("Render Puppeteer server is up and running!");
+  res.send("servidor levantado de Peliculas");
 });
 
 app.listen(PORT, () => {
