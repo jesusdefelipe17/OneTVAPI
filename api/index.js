@@ -4,29 +4,30 @@ const app = express();
 
 app.use(cors());
 
+let chrome;
 let puppeteer;
-let options = {};
 
 if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
-    const chrome = require('chrome-aws-lambda');
-    puppeteer = require('puppeteer-core');
-    (async () => {
-        options = {
-            args: [...chrome.args, '--hide-scrollbars', '--disable-web-security'],
-            defaultViewport: chrome.defaultViewport,
-            executablePath: await chrome.executablePath,
-            headless: chrome.headless,
-            ignoreHTTPSErrors: true,
-        };
-    })(); // Ejecución inmediata de la función async
+    chrome = require("chrome-aws-lambda");
+    puppeteer = require("puppeteer-core");
 } else {
-    puppeteer = require('puppeteer');
-    options = {
-        headless: true,
-    };
+    puppeteer = require("puppeteer");
 }
 
 app.get('/getPelicula/:nombrePelicula', async (req, res) => {
+
+    let options = {};
+
+    if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+        options = {
+            args: [...chrome.args, "--hide-scrollbars", "--disable-web-security"],
+            defaultViewport: chrome.defaultViewport,
+            executablePath: await chrome.executablePath,
+            headless: true,
+            ignoreHTTPSErrors: true,
+        };
+    }
+
     try {
         const browser = await puppeteer.launch(options);
         const page = await browser.newPage();
@@ -76,6 +77,20 @@ app.get('/getPelicula/:nombrePelicula', async (req, res) => {
 });
 
 app.get('/ultimasPeliculas', async (req, res) => {
+
+    let options = {};
+
+    if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+        options = {
+            args: [...chrome.args, "--hide-scrollbars", "--disable-web-security"],
+            defaultViewport: chrome.defaultViewport,
+            executablePath: await chrome.executablePath,
+            headless: true,
+            ignoreHTTPSErrors: true,
+        };
+    }
+
+
     try {
         const browser = await puppeteer.launch(options);
         const page = await browser.newPage();
