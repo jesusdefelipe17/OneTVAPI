@@ -1,7 +1,9 @@
 const express = require("express");
+const cors = require('cors');
 const { ultimasPeliculas } = require("./ultimasPeliculas");
 const { getPelicula } = require("./getPelicula");
 const app = express();
+app.use(cors());
 
 const PORT = process.env.PORT || 4000;
 
