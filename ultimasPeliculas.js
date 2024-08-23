@@ -15,7 +15,6 @@ const ultimasPeliculas = async (res) => {
         : puppeteer.executablePath(),
   });
   try {
-    const browser = await puppeteer.launch(options);
     const page = await browser.newPage();
     const url = 'https://peliculas10.pro';
 
