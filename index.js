@@ -1,6 +1,28 @@
+const express = require("express");
+const { ultimasPeliculas } = require("./ultimasPeliculas");
+const app = express();
+
+const PORT = process.env.PORT || 4000;
+
+app.get("/ultimasPeliculas", (req, res) => {
+    ultimasPeliculas(res);
+});
+
+app.get("/", (req, res) => {
+  res.send("Render Puppeteer server is up and running!");
+});
+
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`);
+});
+
+
+
+/*
 const express = require('express');
 const cors = require('cors');
 const app = express();
+require("dotenv").config();
 
 app.use(cors());
 
@@ -133,3 +155,4 @@ app.listen(3000, () => {
 });
 
 module.exports = app;
+*/
