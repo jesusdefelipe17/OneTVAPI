@@ -34,15 +34,16 @@ const getPelicula = async (req, res) => {
         }).filter(url => url !== null)
       );
 
-      const doodstreamLinks = allLinks.filter(url => url.includes('doodstream'));
+      //const doodstreamLinks = allLinks.filter(url => url.includes('doodstream'));
       const streamwishLinks = allLinks.filter(url => url.includes('streamwish'));
-      const filteredLinks = doodstreamLinks.length > 0 ? doodstreamLinks : streamwishLinks;
+      const filteredLinks = streamwishLinks ;
 
       const [sinopsis, posterSrc, rating] = await Promise.all([
-        page.$eval('div[itemprop="description"] p', p => p.textContent.trim()),
-        page.$eval('div.poster img[itemprop="image"]', img => img.src.replace(/w185/, 'w500')),
-        page.$eval('span.valor b#repimdb strong', strong => strong.textContent.trim())
+        page.$eval('div[itemprop="description"] p', p => p.textContent.trim()).catch(() => null),
+        page.$eval('div.poster img[itemprop="image"]', img => img.src.replace(/w185/, 'w500')).catch(() => null),
+        page.$eval('span.valor b#repimdb strong', strong => strong.textContent.trim()).catch(() => null)
       ]);
+      
 
       res.json({
         links: filteredLinks,

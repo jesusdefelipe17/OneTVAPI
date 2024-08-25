@@ -22,13 +22,17 @@ const ultimasPeliculas = async (res) => {
 
     const peliculas = await page.$$eval('.items.normal .item.movies', items => {
         return items.map(item => {
-            const title = item.querySelector('.data h3 a')?.textContent.trim() || null;
+            const title = item.querySelector('.poster a ')?.href || null;
+            const parts = title.split('/');
+            const id = parts[parts.length - 2];
             const link = item.querySelector('.data h3 a')?.href || null;
             const imgSrc = item.querySelector('.poster img')?.src || null;
             const releaseDate = item.querySelector('.data span')?.textContent.trim() || null;
-            const id = title ? title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') : null;
 
-            return { id, title, link, imgSrc, releaseDate };
+            const title2 = item.querySelector('.data h3 a')?.textContent.trim() || null;
+
+
+            return { id, title, link, imgSrc, releaseDate, title2 };
         });
     });
 

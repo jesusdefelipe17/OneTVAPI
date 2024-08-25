@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require('cors');
 const { ultimasPeliculas } = require("./ultimasPeliculas");
 const { getPelicula } = require("./getPelicula");
+const { getPeliculaBusquedaScript } = require("./getPeliculaBusquedaScript");
 const app = express();
 app.use(cors());
 
@@ -13,6 +14,10 @@ app.get("/ultimasPeliculas", (req, res) => {
 
 app.get("/getPelicula/:nombrePelicula", (req, res) => {
     getPelicula(req, res);
+});
+
+app.get("/getPeliculaBusquedaScript/:nombrePelicula", (req, res) => {
+    getPeliculaBusquedaScript(req, res);
 });
 
 app.get("/", (req, res) => {
