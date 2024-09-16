@@ -25,10 +25,6 @@ const getPelicula = async (req, res) => {
       "--no-sandbox",
       "--single-process",
       "--no-zygote",
-      '--disable-extensions', // Deshabilitar extensiones
-      '--disable-gpu', // Deshabilitar aceleración por GPU
-      '--disable-dev-shm-usage', // Optimizar el uso de la memoria compartida
-      '--disable-software-rasterizer', // Deshabilitar rasterización
     ],
     executablePath:
       process.env.NODE_ENV === "production"
