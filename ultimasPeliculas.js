@@ -20,6 +20,10 @@ const ultimasPeliculas = async (res) => {
       "--no-sandbox",
       "--single-process",
       "--no-zygote",
+      '--disable-extensions', // Deshabilitar extensiones
+      '--disable-gpu', // Deshabilitar aceleración por GPU
+      '--disable-dev-shm-usage', // Optimizar el uso de la memoria compartida
+      '--disable-software-rasterizer', // Deshabilitar rasterización
     ],
     executablePath:
       process.env.NODE_ENV === "production"
@@ -47,7 +51,7 @@ const ultimasPeliculas = async (res) => {
     const url = 'https://peliculas10.pro';
 
     // Usar la estrategia de carga rápida
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 3000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded' });
 
     // Extraer solo los datos esenciales
     const peliculas = await page.$$eval('.items.normal .item.movies', items => {
