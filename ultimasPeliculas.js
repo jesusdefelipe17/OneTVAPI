@@ -31,8 +31,6 @@ const ultimasPeliculas = async (res) => {
 
     const page = await browser.newPage();
 
-    // Configurar la interceptación de solicitudes antes de navegar
-    await page.setRequestInterception(true);
     page.on('request', (req) => {
       const resourceType = req.resourceType();
       if (['image', 'stylesheet', 'font', 'script'].includes(resourceType)) {
