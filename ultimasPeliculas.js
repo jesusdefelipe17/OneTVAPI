@@ -40,8 +40,7 @@ const ultimasPeliculas = async (res) => {
       }
     });
 
-    // Reducir el tamaño del viewport
-    await page.setViewport({ width: 1200, height: 800 });
+   
 
     const url = 'https://peliculas10.pro';
 
