@@ -21,7 +21,6 @@ const ultimasPeliculas = async (res) => {
         "--no-sandbox",
         "--single-process",
         "--no-zygote",
-        "--disable-dev-shm-usage", // Importante en entornos Docker
       ],
       executablePath:
         process.env.NODE_ENV === "production"
@@ -31,22 +30,10 @@ const ultimasPeliculas = async (res) => {
 
     const page = await browser.newPage();
 
-    page.on('request', (req) => {
-      const resourceType = req.resourceType();
-      if (['image', 'stylesheet', 'font', 'script'].includes(resourceType)) {
-        req.abort(); // Cancelar recursos no necesarios
-      } else {
-        req.continue();
-      }
-    });
-
-   
-
     const url = 'https://peliculas10.pro';
 
-    // Cargar la página usando una estrategia de carga rápida
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
-
+    await page.goto(url, { waitUntil: 'networkidle2' });
+    
     // Extraer los datos esenciales
     const peliculas = await page.$$eval('.items.normal .item.movies', items => {
       return items.map(item => {
