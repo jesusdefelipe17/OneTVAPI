@@ -1,9 +1,37 @@
 const puppeteer = require("puppeteer");
+const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 
 // Usar un Map para almacenar la caché
 let cachePelicula = new Map();
 const CACHE_DURATION_MS = 1000 * 60 * 60 * 24; // 24 horas
+const CACHE_FILE_PATH = path.join(__dirname, 'cachePelicula.json');
+
+// Función para cargar la caché desde el archivo JSON al iniciar
+const loadCacheFromFile = () => {
+  if (fs.existsSync(CACHE_FILE_PATH)) {
+    const data = fs.readFileSync(CACHE_FILE_PATH, 'utf-8');
+    const jsonData = JSON.parse(data);
+    const currentTime = Date.now();
+
+    // Restaurar el cache en memoria si aún es válido
+    for (const [key, value] of Object.entries(jsonData)) {
+      if ((currentTime - value.timestamp) < CACHE_DURATION_MS) {
+        cachePelicula.set(key, value);
+      }
+    }
+  }
+};
+
+// Función para guardar la caché en un archivo JSON
+const saveCacheToFile = () => {
+  const cacheData = Object.fromEntries(cachePelicula);
+  fs.writeFileSync(CACHE_FILE_PATH, JSON.stringify(cacheData), 'utf-8');
+};
+
+// Cargar la caché desde el archivo al iniciar el servidor
+loadCacheFromFile();
 
 const getPelicula = async (req, res) => {
   const nombrePelicula = req.params.nombrePelicula;
@@ -19,16 +47,12 @@ const getPelicula = async (req, res) => {
   }
 
   const browser = await puppeteer.launch({
-    headless: "new", // Usar la nueva implementación headless para mayor velocidad
+    headless: false, // Usar la nueva implementación headless para mayor velocidad
     args: [
       "--disable-setuid-sandbox",
       "--no-sandbox",
       "--single-process",
       "--no-zygote",
-      '--disable-extensions', // Deshabilitar extensiones
-      '--disable-gpu', // Deshabilitar aceleración por GPU
-      '--disable-dev-shm-usage', // Optimizar el uso de la memoria compartida
-      '--disable-software-rasterizer', // Deshabilitar rasterización
     ],
     executablePath:
       process.env.NODE_ENV === "production"
@@ -38,19 +62,7 @@ const getPelicula = async (req, res) => {
 
   try {
     const page = await browser.newPage();
-
-    // Interceptar y bloquear recursos innecesarios
-    await page.setRequestInterception(true);
-    page.on('request', (req) => {
-      const resourceType = req.resourceType();
-      if (['image', 'stylesheet', 'font'].includes(resourceType)) {
-        req.abort(); // Bloquear imágenes, estilos y fuentes
-      } else {
-        req.continue();
-      }
-    });
-
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
+    await page.goto(url, { waitUntil: 'networkidle2' });
 
     const frameElement = await page.waitForSelector('#dooplay_player_content iframe');
     const frame = await frameElement.contentFrame();
@@ -73,7 +85,7 @@ const getPelicula = async (req, res) => {
       ]);
 
       const responseData = {
-        links: streamwishLinks,
+        links: allLinks,
         descripcion: sinopsis,
         poster: posterSrc,
         calificacion: rating,
@@ -84,6 +96,9 @@ const getPelicula = async (req, res) => {
         data: responseData,
         timestamp: Date.now(),
       });
+
+      // Guardar la caché en el archivo JSON
+      saveCacheToFile();
 
       // Devolver los datos obtenidos
       res.json(responseData);
