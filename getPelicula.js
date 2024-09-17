@@ -47,7 +47,7 @@ const getPelicula = async (req, res) => {
   }
 
   const browser = await puppeteer.launch({
-    headless: false, // Usar la nueva implementación headless para mayor velocidad
+    headless: "new", // Usar la nueva implementación headless para mayor velocidad
     args: [
       "--disable-setuid-sandbox",
       "--no-sandbox",
