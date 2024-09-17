@@ -1,5 +1,8 @@
 const puppeteer = require("puppeteer");
 require("dotenv").config();
+const https = require("https");
+
+const PING_INTERVAL_MS = 1000 * 60 * 20; // 20 minutos
 
 // Cachear datos durante un tiempo definido
 let cachedData = null;
@@ -64,5 +67,22 @@ const ultimasPeliculas = async (res) => {
     }
   }
 };
+
+// Función para hacer un "ping" al servidor cada 20 minutos
+const keepServerAwake = () => {
+  const url = process.env.SERVER_URL; // Reemplaza esto con la URL de tu servidor
+  if (url) {
+    setInterval(() => {
+      console.log(`Haciendo ping a ${url} para mantener el servidor despierto...`);
+      https.get(url, (res) => {
+        console.log(`Ping a servidor completado. Status Code: ${res.statusCode}`);
+      }).on('error', (err) => {
+        console.error(`Error haciendo ping: ${err.message}`);
+      });
+    }, PING_INTERVAL_MS);
+  }
+};
+
+keepServerAwake(); // Llamamos a la función para mantener el servidor activo
 
 module.exports = { ultimasPeliculas };
