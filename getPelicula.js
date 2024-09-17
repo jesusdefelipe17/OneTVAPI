@@ -62,7 +62,7 @@ const getPelicula = async (req, res) => {
 
   try {
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2' });
+    await page.goto(url, { waitUntil: 'load' });
 
     const frameElement = await page.waitForSelector('#dooplay_player_content iframe');
     const frame = await frameElement.contentFrame();
