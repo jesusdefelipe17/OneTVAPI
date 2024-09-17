@@ -6,7 +6,8 @@ require("dotenv").config();
 // Usar un Map para almacenar la caché
 let cachePelicula = new Map();
 const CACHE_DURATION_MS = 1000 * 60 * 60 * 24; // 24 horas
-const CACHE_FILE_PATH = path.join(__dirname, 'cachePelicula.json');
+const CACHE_FILE_PATH = path.join("/tmp", 'cachePelicula.json'); //cache
+
 
 // Función para cargar la caché desde el archivo JSON al iniciar
 const loadCacheFromFile = () => {
