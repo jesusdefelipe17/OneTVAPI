@@ -47,12 +47,15 @@ const getPelicula = async (req, res) => {
   }
 
   const browser = await puppeteer.launch({
-    headless: "new", // Usar la nueva implementación headless para mayor velocidad
+    headless: false, // Usar la nueva implementación headless para mayor velocidad
     args: [
-      "--disable-setuid-sandbox",
-      "--no-sandbox",
-      "--single-process",
-      "--no-zygote",
+    '--no-sandbox', 
+    '--disable-setuid-sandbox', 
+    '--disable-dev-shm-usage', // Evita problemas de memoria compartida en entornos limitados
+    '--disable-accelerated-2d-canvas',
+    '--no-first-run',
+    '--no-zygote',
+    '--disable-gpu',
     ],
     executablePath:
       process.env.NODE_ENV === "production"
@@ -62,10 +65,14 @@ const getPelicula = async (req, res) => {
 
   try {
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'load' });
+    await page.goto(url, { waitUntil: 'networkidle2' });
 
-    const frameElement = await page.waitForSelector('#dooplay_player_content iframe');
-    const frame = await frameElement.contentFrame();
+    await page.waitForSelector('#dooplay_player_content iframe', { timeout: 20000 }); // Esperar hasta 10 segundos
+    const frameElement = await page.$('#dooplay_player_content iframe'); // Seleccionar iframe
+   
+    const frame = await frameElement.contentFrame(); // Asegurar que el frame esté disponible
+       
+    
 
     if (frame) {
       const allLinks = await frame.$$eval('div.OD_1.REactiv li', items =>
